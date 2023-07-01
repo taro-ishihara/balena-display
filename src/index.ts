@@ -1,6 +1,6 @@
-import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { Launcher } from 'chrome-launcher'
+import { serve } from '@hono/node-server'
 
 const app = new Hono()
 const launcher = new Launcher({
