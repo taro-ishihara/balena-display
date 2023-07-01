@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.0.1",
+    "chrome-launcher": "^0.15.2",
+    "hono": "^3.2.7",
+    "tsx": "^3.12.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.44.0",
+    "prettier": "^2.8.8"
+  }
+}

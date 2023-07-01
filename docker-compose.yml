@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  display:
+    build: .
+    privileged: true
+    ports:
+      - 5678:5678
