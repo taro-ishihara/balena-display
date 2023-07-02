@@ -1,12 +1,5 @@
-FROM balenalib/raspberrypi4-64-debian-node:19.6-bookworm-build as build
-## Build Management API
-WORKDIR /build
-COPY ./package.json /build/
-RUN npm install --omit=dev
-
 FROM balenalib/raspberrypi4-64-debian-node:19.6-bookworm-run
 ## Install Chromium
-WORKDIR /chromium
 RUN install_packages \
     chromium \
     chromium-sandbox \
@@ -27,21 +20,22 @@ RUN useradd chromium -m -s /bin/bash -G root || true && \
 RUN usermod -a -G audio,video,tty chromium
 RUN ln -s /usr/bin/chromium /usr/bin/chromium-browser || true
 
+WORKDIR /app
+
 ## Setup User Data
-RUN mkdir -p ./data
-RUN chown -R chromium:chromium ./data
+RUN mkdir -p /chromium/display1
+RUN mkdir -p /chromium/display2
+RUN chown -R chromium:chromium /chromium/display1
+RUN chown -R chromium:chromium /chromium/display2
 
 ## Setup Scripts
-COPY ./scripts/entrypoint.sh ./
-COPY ./scripts/start.sh ./
-RUN chmod +x ./*.sh
+COPY ./scripts ./scripts
+RUN chmod +x ./scripts/*.sh
 
-## Install Management API
-WORKDIR /app
-COPY --from=build /build/node_modules ./node_modules
+## Install Display Server
 COPY ./package.json ./
+RUN npm install --omit=dev
 COPY ./src/index.ts ./src/
 
 ## Launch
-WORKDIR /chromium
-CMD ["bash", "/chromium/entrypoint.sh"]
+CMD ["bash", "/app/scripts/entrypoint.sh"]

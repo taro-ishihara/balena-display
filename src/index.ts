@@ -1,16 +1,27 @@
 import { Hono } from 'hono'
-import { Launcher } from 'chrome-launcher'
+import { launch, killAll } from 'chrome-launcher'
 import { serve } from '@hono/node-server'
 
 const app = new Hono()
-const launcher = new Launcher({
-  startingUrl: 'https://google.com',
-})
-
-app.get('/', (c) => c.text('Hello Hono!'))
-app.get('/launch', (c) => {
-  launcher.launch()
+app.get('/', (c) => c.text('Hello Hono Dayo!'))
+app.get('/launch', async (c) => {
+  await launch({
+    startingUrl: '--app=https://google.com',
+    chromeFlags: ['--window-position=0,0', '--kiosk'],
+    userDataDir: '/chromium/display1',
+    ignoreDefaultFlags: true,
+  })
+  await launch({
+    startingUrl: '--app=https://google.com',
+    chromeFlags: ['--window-position=1024,0', '--kiosk'],
+    userDataDir: '/chromium/display2',
+    ignoreDefaultFlags: true,
+  })
   return c.text('launched')
+})
+app.get('/kill', (c) => {
+  killAll()
+  return c.text('killed')
 })
 
 serve({
