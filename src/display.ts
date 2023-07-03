@@ -4,13 +4,13 @@ import { readFile, unlink } from 'fs/promises'
 import path from 'path'
 import os from 'os'
 
-const defaultRemoteDebuggingPort = 9222
-
 interface Display {
   w: number
   h: number
   p: number
 }
+
+const defaultRemoteDebuggingPort = 9222
 
 const formatDisplay = (display: string): Display | undefined => {
   const sizeRegex = /(\d+)x(\d+)/
@@ -133,8 +133,8 @@ const takeScreenshot = async (): Promise<Buffer | undefined> => {
   try {
     const child = spawn('scrot', [filePath])
 
-    const statusCode = await new Promise((res, rej) => {
-      child.on('close', res)
+    const statusCode = await new Promise<number>((resolve) => {
+      child.on('close', resolve)
     })
     if (statusCode != 0) {
       console.error('Screenshot command exited with non-zero return code.')
