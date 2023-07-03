@@ -1,11 +1,20 @@
 import { Hono } from 'hono/tiny'
 import { serve } from '@hono/node-server'
-import { startDebug, startKiosk, takeScreenshot } from './display'
+import {
+  startKiosk,
+  startLocalDebug,
+  startRemoteDebug,
+  takeScreenshot,
+} from './display'
 
 const app = new Hono()
 app.get('/', (c) => c.text('Display Server!'))
-app.get('/debug', async (c) => {
-  const remoteDebuggingPorts = await startDebug()
+app.get('/localdebug', async (c) => {
+  await startLocalDebug()
+  return c.text(`Local debug started.`)
+})
+app.get('/remotedebug', async (c) => {
+  const remoteDebuggingPorts = await startRemoteDebug()
   return c.text(`Remote debugging port(s): ${remoteDebuggingPorts.join(',')}`)
 })
 app.get('screenshot', async (c) => {
@@ -17,7 +26,7 @@ app.get('screenshot', async (c) => {
   c.body(image.buffer)
 })
 
-startDebug()
+startKiosk()
 
 serve({
   fetch: app.fetch,

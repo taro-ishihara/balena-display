@@ -4,6 +4,8 @@ import { readFile, unlink } from 'fs/promises'
 import path from 'path'
 import os from 'os'
 
+const defaultRemoteDebuggingPort = 9222
+
 interface Display {
   w: number
   h: number
@@ -29,58 +31,100 @@ const displayList = ((): Array<Display> => {
   const display_1 = process.env.DISPLAY_1 || ''
   const display_2 = process.env.DISPLAY_2 || ''
 
-  return [display_1, display_2].map((value) => formatDisplay(value)).filter((value) => value !== undefined) as Display[]
+  return [display_1, display_2]
+    .map((value) => formatDisplay(value))
+    .filter((value) => value !== undefined) as Display[]
 })()
 
-const launchDisplay = async (debug: boolean) => {
-  killAll()
-
+const createFlags = (
+  display: Display,
+  remoteDebuggingPort,
+  debug: 'local' | 'remote' | undefined,
+) => {
+  const positionFlags = [
+    `--window-size=${display.w},${display.h}`,
+    `--window-position=${display.p},0`,
+  ]
   const baseFlags = [
     '--check-for-update-interval=31536000',
     '--disable-background-mode',
     '--autoplay-policy=no-user-gesture-required',
-    '--kiosk',
   ]
-  const gpuFlags = ['--ignore-gpu-blacklist', '--enable-gpu-rasterization', '--enable-zero-copy']
-  const corsFlags = ['--disable-web-security', '--disable-site-isolation-trials']
-  const defaultRemoteDebuggingPort = 9222
+  const gpuFlags = [
+    '--ignore-gpu-blacklist',
+    '--enable-gpu-rasterization',
+    '--enable-zero-copy',
+  ]
+  const corsFlags = [
+    '--disable-web-security',
+    '--disable-site-isolation-trials',
+  ]
+  switch (debug) {
+    case 'local':
+      return [
+        ...positionFlags,
+        ...baseFlags,
+        ...gpuFlags,
+        ...corsFlags,
+        '--auto-open-devtools-for-tabs',
+      ]
+    case 'remote':
+      return [
+        ...positionFlags,
+        ...baseFlags,
+        ...gpuFlags,
+        ...corsFlags,
+        '--headless',
+        '--remote-debugging-address=0.0.0.0',
+        `--remote-debugging-port=${remoteDebuggingPort}`,
+      ]
+    default:
+      return [
+        ...positionFlags,
+        ...baseFlags,
+        ...gpuFlags,
+        ...corsFlags,
+        '--kiosk',
+      ]
+  }
+}
 
-  const promises = displayList.map(async (value, index) => {
+const launchDisplay = async (debug?: 'local' | 'remote') => {
+  killAll()
+  const promises = displayList.map(async (display, index) => {
     // if you only set LAUNCH_URL_1 and start as dual display, the display will set as mirror mode
-    const url = process.env[`LAUNCH_URL_${index + 1}`] || process.env.LAUNCH_URL_1 || 'https://example.com'
+    const url =
+      process.env[`LAUNCH_URL_${index + 1}`] ||
+      process.env.LAUNCH_URL_1 ||
+      'https://example.com'
     const startingUrl = debug ? url : `--app=${url}`
-    const positionFlags = [`--window-size=${value.w},${value.h}`, `--window-position=${value.p},0`]
     const remoteDebuggingPort = defaultRemoteDebuggingPort + index
-    const flags = debug
-      ? [
-          ...positionFlags,
-          ...baseFlags.filter((value) => value !== '--kiosk'),
-          ...gpuFlags,
-          ...corsFlags,
-          '--headless',
-          '--remote-debugging-address=0.0.0.0',
-          `--remote-debugging-port=${remoteDebuggingPort}`,
-        ]
-      : [...positionFlags, ...baseFlags, ...gpuFlags, ...corsFlags]
+    const flags = createFlags(display, remoteDebuggingPort, debug)
     await launch({
       startingUrl: startingUrl,
-      port: debug ? remoteDebuggingPort : undefined,
+      port: debug === 'remote' ? remoteDebuggingPort : undefined,
       chromeFlags: flags,
       userDataDir: `/chromium/display${index + 1}`,
       ignoreDefaultFlags: true,
     })
     console.log(`Chromium launched with flags: ${flags}`)
-    debug ? console.log(`Remote debugging port: ${remoteDebuggingPort}`) : null
+    debug === 'remote'
+      ? console.log(`Remote debugging port: ${remoteDebuggingPort}`)
+      : null
     return remoteDebuggingPort
   })
   return await Promise.all(promises)
 }
 const startKiosk = async () => {
-  await launchDisplay(false)
+  await launchDisplay()
   return
 }
-const startDebug = async () => {
-  return await launchDisplay(true)
+const startLocalDebug = async () => {
+  await launchDisplay('local')
+  return
+}
+const startRemoteDebug = async () => {
+  return await launchDisplay('remote')
 }
 
 const takeScreenshot = async (): Promise<Buffer | undefined> => {
@@ -110,4 +154,4 @@ const takeScreenshot = async (): Promise<Buffer | undefined> => {
   }
 }
 
-export { startKiosk, startDebug, takeScreenshot }
+export { startKiosk, startLocalDebug, startRemoteDebug, takeScreenshot }

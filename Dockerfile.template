@@ -22,6 +22,9 @@ RUN ln -s /usr/bin/chromium /usr/bin/chromium-browser || true
 RUN touch /home/chromium/.Xauthority
 RUN chown chromium:chromium /home/chromium/.Xauthority
 
+## Input Device
+ENV UDEV=1
+
 WORKDIR /app
 
 ## Setup User Data
