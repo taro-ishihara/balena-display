@@ -5,6 +5,12 @@ Balena display is a fork of https://github.com/balena-labs-projects/browser.
 This is designed for Dual Display Digital Signage System on Raspberry Pi 4.
 https://forums.balena.io/t/multi-chromium-instance-on-balena-os/368234
 
+## Designed for Digital Signage System
+
+- No use persistant data, Stateless.
+- Plug and play: You don't have to specify your display size by envar.
+- Hardware accelerated: use GPU for videos.
+
 ## Try it out locally
 
 1. Please set GPU Memory > 512MB.
