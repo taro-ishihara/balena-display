@@ -1,30 +1,29 @@
-import { Hono } from 'hono'
-import { launch, killAll } from 'chrome-launcher'
+import { Hono } from 'hono/tiny'
 import { serve } from '@hono/node-server'
+import { startDebug, startKiosk, takeScreenshot } from './display'
 
 const app = new Hono()
-app.get('/', (c) => c.text('Hello Hono Dayo!'))
-app.get('/launch', async (c) => {
-  await launch({
-    startingUrl: '--app=https://google.com',
-    chromeFlags: ['--window-position=0,0', '--kiosk'],
-    userDataDir: '/chromium/display1',
-    ignoreDefaultFlags: true,
-  })
-  await launch({
-    startingUrl: '--app=https://google.com',
-    chromeFlags: ['--window-position=1024,0', '--kiosk'],
-    userDataDir: '/chromium/display2',
-    ignoreDefaultFlags: true,
-  })
-  return c.text('launched')
+app.get('/', (c) => c.text('Display Server!'))
+app.get('/debug', async (c) => {
+  const remoteDebuggingPorts = await startDebug()
+  return c.text(`Remote debugging port(s): ${remoteDebuggingPorts.join(',')}`)
 })
-app.get('/kill', (c) => {
-  killAll()
-  return c.text('killed')
+app.get('screenshot', async (c) => {
+  const image = await takeScreenshot()
+  if (!image) {
+    return c.text('Failed to take a screenshot.')
+  }
+  c.header('Content-Type', 'image/png')
+  c.body(image.buffer)
 })
+
+startDebug()
 
 serve({
   fetch: app.fetch,
   port: 5678,
+})
+
+process.on('SIGINT', () => {
+  process.exit()
 })

@@ -1,4 +1,4 @@
-FROM balenalib/raspberrypi4-64-debian-node:19.6-bookworm-run
+FROM balenalib/%%BALENA_MACHINE_NAME%%-debian-node:19.6-bookworm-run
 ## Install Chromium
 RUN install_packages \
     chromium \
@@ -19,6 +19,8 @@ RUN useradd chromium -m -s /bin/bash -G root || true && \
     chown -R chromium:chromium /home/chromium || true
 RUN usermod -a -G audio,video,tty chromium
 RUN ln -s /usr/bin/chromium /usr/bin/chromium-browser || true
+RUN touch /home/chromium/.Xauthority
+RUN chown chromium:chromium /home/chromium/.Xauthority
 
 WORKDIR /app
 
@@ -35,7 +37,7 @@ RUN chmod +x ./scripts/*.sh
 ## Install Display Server
 COPY ./package.json ./
 RUN npm install --omit=dev
-COPY ./src/index.ts ./src/
+COPY ./src ./src
 
 ## Launch
 CMD ["bash", "/app/scripts/entrypoint.sh"]

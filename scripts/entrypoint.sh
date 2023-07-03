@@ -12,5 +12,5 @@ environment=$(env | grep -v -w '_' | awk -F= '{ st = index($0,"=");print substr(
 environment="${environment::-1}"
 
 ## Change User to "chromium" and startx with start_server.sh
-su -w $environment -c "export DISPLAY=:0 && startx /app/scripts/start_server.sh" - chromium
+su -w $environment -c "export DISPLAY=:0 && startx /app/scripts/start_server.sh -- -nocursor" - chromium
 balena-idle

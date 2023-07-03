@@ -7,5 +7,3 @@ services:
     network_mode: host
     environment:
       - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket'
-    # ports:
-    #   - 5678:5678
