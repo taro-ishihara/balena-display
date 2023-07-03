@@ -8,6 +8,7 @@ import {
 } from './display'
 
 const app = new Hono()
+
 app.get('/', (c) =>
   c.text(
     'Display Server! see: https://github.com/taro-ishihara/balena-display',
@@ -34,8 +35,7 @@ app.get('/screenshot', async (c) => {
   return c.body(image.buffer)
 })
 
-await startKiosk()
-
+startKiosk() // don't await this
 serve({
   fetch: app.fetch,
   port: 5678,
