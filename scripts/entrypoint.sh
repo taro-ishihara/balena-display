@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+## Hosts
+echo "127.0.0.1 $HOSTNAME" >> /etc/hosts
+
 ## XServer Configuration
 sed -i -e 's/console/anybody/g' /etc/X11/Xwrapper.config
 dpkg-reconfigure xserver-xorg-legacy

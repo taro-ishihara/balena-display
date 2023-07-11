@@ -50,11 +50,6 @@ const createFlags = (
     '--disable-background-mode',
     '--autoplay-policy=no-user-gesture-required',
   ]
-  const gpuFlags = [
-    '--ignore-gpu-blacklist',
-    '--enable-gpu-rasterization',
-    '--enable-zero-copy',
-  ]
   const corsFlags = [
     '--disable-web-security',
     '--disable-site-isolation-trials',
@@ -64,7 +59,6 @@ const createFlags = (
       return [
         ...positionFlags,
         ...baseFlags,
-        ...gpuFlags,
         ...corsFlags,
         '--auto-open-devtools-for-tabs',
       ]
@@ -72,7 +66,6 @@ const createFlags = (
       return [
         ...positionFlags,
         ...baseFlags,
-        ...gpuFlags,
         ...corsFlags,
         '--headless',
         '--remote-debugging-address=0.0.0.0',
@@ -82,7 +75,6 @@ const createFlags = (
       return [
         ...positionFlags,
         ...baseFlags,
-        ...gpuFlags,
         ...corsFlags,
         '--kiosk',
       ]
@@ -107,7 +99,7 @@ const launchDisplay = async (debug?: 'local' | 'remote') => {
       userDataDir: `/chromium/display${index + 1}`,
       ignoreDefaultFlags: true,
     })
-    console.log(`Chromium launched with flags: ${flags}`)
+    console.log(`${url} launched with flags: ${flags}`)
     debug === 'remote'
       ? console.log(`Remote debugging port: ${remoteDebuggingPort}`)
       : null
