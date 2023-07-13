@@ -4,7 +4,7 @@ import { readFile, unlink } from 'fs/promises'
 import path from 'path'
 import os from 'os'
 
-interface Display {
+type Display = {
   name: string
   number: number
   w: number
