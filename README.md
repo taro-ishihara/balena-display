@@ -13,7 +13,7 @@ https://forums.balena.io/t/multi-chromium-instance-on-balena-os/368234
 
 ## Try it out locally
 
-1. Please set GPU Memory > 512MB.
+1. Please set GPU Memory 256MB.
    https://docs.balena.io/reference/OS/advanced/#gpu-memory
 
 1. `balena push <your-device-ip>` with local mode.
