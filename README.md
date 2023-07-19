@@ -53,3 +53,7 @@ Port: 5678
 - LAUNCH_URL_2
 
   A URL for secondry display. If you don't set this but plug 2 displays, then LAUNCH_URL_1 will be displayed on both screen. (mirro mode)
+
+- SHOW_CURSOR
+
+  0 or 1, if you set this 1, mouse cursor will show up on the screen. Mainly for debug with localdebug mode.
